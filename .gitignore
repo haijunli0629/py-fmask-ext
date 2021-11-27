@@ -1,3 +1,7 @@
+*.pyc
+*.img
+*.kea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -127,3 +131,30 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+**/.ipynb_checkpoints/
+
+# Cython debug symbols
+cython_debug/
+
+**/dask-worker-space/
+**/log/
+*.log
+**/*.log
+*.log.*
+# hpcc qsub output
+*.o
+*.e
+*.out
+*.err
+machinefile.*
+filetable.temp*
+GetAttrtemp*
+*.out
+*.err
+.idea
+
+# core dump
+core.[0-9]*
+*.swp

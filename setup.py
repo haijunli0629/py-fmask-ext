@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+from setuptools import find_packages
 
 import fmask_ext
 from numpy.distutils.core import setup, Extension
@@ -40,12 +41,12 @@ valueIndexesC = Extension(name='_valueindexes',
 extensionsList = [example, fillminimaC, valueIndexesC]
 
 # do the setup
-setup(name='py-fmask-ext',
+setup(name='fmask_ext',
       version=fmask_ext.__version__,
-      description='Module to implement the fmask_ext cloud masking algorithm (Zhu, Wang & Woodcock 2015)',
+      description='C-extension Module to implement the fmask cloud masking algorithm (Zhu, Wang & Woodcock 2015)',
       author='Neil Flood',
       author_email='neil.flood@des.qld.gov.au',
-      packages=['fmask_ext'],
+      packages=find_packages(),
       ext_package='fmask_ext',
       ext_modules=extensionsList,
       license='LICENSE.txt',

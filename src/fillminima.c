@@ -73,7 +73,7 @@ static PQel *newPix(int i, int j) {
     p->j = j;
     p->next = NULL;
     if (i>20000) {
-        printf("i=%d\\n", i);
+        printf("i=%d\n", i);
         exit(1);
     }
     return p;
@@ -98,7 +98,7 @@ static PixelQueue *PQ_init(int hMin, int hMax) {
 }
     
 /* Add a pixel at level h */
-static void PQ_add(PixelQueue *pixQ, PQel *p, int h) {
+static int PQ_add(PixelQueue *pixQ, PQel *p, int h) {
     int ndx;
     PQel *current, *newP;
     PQhdr *thisQ;
@@ -108,12 +108,14 @@ static void PQ_add(PixelQueue *pixQ, PQel *p, int h) {
         
     ndx = h - pixQ->hMin;
     if (ndx > pixQ->numLevels) {
-        printf("Level h=%d too large. ndx=%d, numLevels=%d\\n", h, ndx, pixQ->numLevels);
-        exit(1);
+        printf("ERROR in fillminima.c, Level h=%d too large. ndx=%d, numLevels=%d\n", h, ndx, pixQ->numLevels);
+        // exit(1);
+        return -1;
     }
     if (ndx < 0) {
-        printf("Ndx is negative, which is not allowed. ndx=%d, h=%d, hMin=%d\n", ndx, h, pixQ->hMin);
-        exit(1);
+        printf("ERROR in fillminima.c, Ndx is negative, which is not allowed. ndx=%d, h=%d, hMin=%d\n", ndx, h, pixQ->hMin);
+        // exit(1);
+        return -1;
     }
     thisQ = &(pixQ->q[ndx]);
     /* Add to end of queue at this level */
@@ -127,6 +129,7 @@ static void PQ_add(PixelQueue *pixQ, PQel *p, int h) {
     if (thisQ->first == NULL) {
         thisQ->first = newP;
     }
+    return 0;
 }
     
 /* Return TRUE if queue at level h is empty */
@@ -139,13 +142,13 @@ static int PQ_empty(PixelQueue *pixQ, int h) {
     n = pixQ->q[ndx].n;
     empty = (current == NULL);
     if (empty && (n != 0)) {
-        printf("Empty, but n=%d\\n", n);
+        printf("ERROR in fillminima.c, Empty, but n=%d\n", n);
         exit(1);
     }
     if ((n == 0) && (! empty)) {
-        printf("n=0, but not empty\\n");
+        printf("ERROR in fillminima.c, n=0, but not empty\n");
         while (current != NULL) {
-            printf("    h=%d i=%d j=%d\\n", h, current->i, current->j);
+            printf("    h=%d i=%d j=%d\n", h, current->i, current->j);
             current = current->next;
         }
         exit(1);
@@ -171,11 +174,11 @@ static PQel *PQ_first(PixelQueue *pixQ, int h) {
         }
         thisQ->n--;
         if (thisQ->n < 0) {
-            printf("n=%d in PQ_first()\\n", thisQ->n);
+            printf("ERROR in fillminima.c, n=%d in PQ_first()\n", thisQ->n);
             exit(1);
         } else if (thisQ->n == 0) {
             if (thisQ->first != NULL) {
-                printf("n=0, but 'first' != NULL. first(i,j) = %d,%d\\n", 
+                printf("n=0, but 'first' != NULL. first(i,j) = %d,%d\n", 
                     thisQ->first->i, thisQ->first->j);
             }
         }
@@ -264,7 +267,10 @@ static PyObject *fillminima_fillMinima(PyObject *self, PyObject *args)
         p = newPix(r, c);
         //h = img(r, c);
         //PQ_add(pixQ, p, img(r, c));
-        PQ_add(pixQ, p, dBoundaryVal);
+        int ret = PQ_add(pixQ, p, dBoundaryVal);
+        if (ret == -1) {
+            return Py_BuildValue("i", -1);
+        }
     }
     
     
@@ -285,7 +291,10 @@ static PyObject *fillminima_fillMinima(PyObject *self, PyObject *args)
                     if (img2val == hMax) {
                         img2val = max(hCrt, imgval);
                         *((npy_int16*)PyArray_GETPTR2(pimg2, r, c)) = img2val;
-                        PQ_add(pixQ, pNbr, img2val);
+                        int ret = PQ_add(pixQ, pNbr, img2val);
+                        if (ret == -1) {
+                            return Py_BuildValue("i", -1);
+                        }
                     }
                 }
                 pNext = pNbr->next;
@@ -299,7 +308,8 @@ static PyObject *fillminima_fillMinima(PyObject *self, PyObject *args)
     
     free(pixQ);
 
-    Py_RETURN_NONE;
+    // Py_RETURN_NONE;
+    return Py_BuildValue("i", 0);
 }
 
 

@@ -158,3 +158,5 @@ GetAttrtemp*
 # core dump
 core.[0-9]*
 *.swp
+data/
+/data/
